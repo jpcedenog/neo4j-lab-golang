@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - dep ensure -v
+      - go build -ldflags="-s -w" -o bin/findcoactors findcoactors/main.go
+    env:
+      GOOS: linux
+
+  clean:
+    cmds:
+      - rm -rf ./bin ./vendor Gopkg.lock
+
+  deploy:
+    deps: [ build ]
+    cmds:
+      - sls deploy --verbose
+
+  remove:
+    cmds:
+      - sls remove

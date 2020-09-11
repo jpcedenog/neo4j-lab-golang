@@ -1,0 +1,43 @@
+service: aws-lambda-lab
+
+frameworkVersion: ">=1.28.0 <2.0.0"
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
+provider:
+  name: aws
+  runtime: go1.x
+  memorySize: 128
+  versionFunctions: false
+  stage: dev
+  region: us-east-1
+  tracing:
+    apiGateway: true
+    lambda: true
+  environment:
+    neo4jURL: bolt://hobby-ojcngepljjohgbkekbfcejfl.dbs.graphenedb.com:24787
+    user: AQICAHjNvY5vTBX9yf2QFlDcbD7S-jvAMW8IowtdpE6EXarXoQEI6VzwYOq-4zWmj2vxteFSAAAAZzBlBgkqhkiG9w0BBwagWDBWAgEAMFEGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMNJo-5ctcRSJjJksdAgEQgCT0HkDAoLyTQ_WIvYZP929M3libfN88hjrRrw9gQyylQ9vPUME=
+    password: AQICAHjNvY5vTBX9yf2QFlDcbD7S-jvAMW8IowtdpE6EXarXoQFl0FvKRjzvxQNf1FMn1CNHAAAAfTB7BgkqhkiG9w0BBwagbjBsAgEAMGcGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWBLI11CNGzaya4S0AgEQgDqkXN_EQA7c1CsQbA3P14WMFdcPp8WuS8rQccGBuikkN9G9YfYQZ7YJIWv9wVIv6S-e8FH7E4KRDYU0
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+functions:
+  sampleFunction:
+    handler: bin/findcoactors
+    events:
+      - http:
+          path: coactors
+          method: post
+          cors: true
+          authorizer: aws_iam
+    awsKmsKeyArn: arn:aws:kms:us-******
+
+resources:
+  - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/cognito-user-pool.yml)}
+  - ${file(resources/cognito-identity-pool.yml)}
